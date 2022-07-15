@@ -1,0 +1,1 @@
+start /MAX cmd /c "title Tests && cls && docker run -d --name test-container -p 6600:6600 %DOCKER_USERNAME%/yolo-api:1.0 && docker exec test-container pytest && docker stop test-container && docker container rm -f test-container && timeout /t 10 /nobreak"
