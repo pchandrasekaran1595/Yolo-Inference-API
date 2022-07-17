@@ -69,7 +69,7 @@ async def get_tiny_yolo_v3_infer():
 async def post_tiny_yolo_v3_infer(image: Image):
     _, image = decode_image(image.imageData)
 
-    model = Model()
+    model = Model(model_name="tiny-yolo-v3")
     model.setup()
     label, score, box = model.infer(image=image)
 
