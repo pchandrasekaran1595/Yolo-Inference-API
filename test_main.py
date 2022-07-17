@@ -1,5 +1,8 @@
+import pytest
+
 from fastapi.testclient import TestClient
 from main import app, VERSION
+
 
 client = TestClient(app=app)
 
@@ -34,11 +37,31 @@ def test_get_infer():
     }
 
 
-def test_get_tiny_yolo_v3_infer():
-    response = client.get("/infer/tiny-yolo-v3")
+@pytest.mark.parametrize(
+    "number", 
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+)
+def test_get_tiny_yolo_infer(number):
+    response = client.get(f"/infer/v{number}/tiny")
+    print(response.json())
     assert response.status_code == 200
     assert response.json() == {
-        "statusText" : "Tiny Yolo V3 Inference Endpoint",
+        "statusText" : f"Tiny Yolo V{number} Inference Endpoint; V3 is the only supported model type at present",
+        "statusCode" : 200,
+        "version" : VERSION,
+    }
+
+
+@pytest.mark.parametrize(
+    "number", 
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+)
+def test_get_nano_yolo_infer(number):
+    response = client.get(f"/infer/v{number}/nano")
+    print(response.json())
+    assert response.status_code == 200
+    assert response.json() == {
+        "statusText" : f"Nano Yolo V{number} Inference Endpoint; V6 is the only supported model type at present",
         "statusCode" : 200,
         "version" : VERSION,
     }
