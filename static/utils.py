@@ -16,12 +16,13 @@ ort.set_default_logger_severity(3)
 
 #####################################################################################################
 
-class Model(object):
-    def __init__(self, model_name: str) -> None:
+class YoloV3(object):
+    def __init__(self, model_type: str="tiny") -> None:
         self.ort_session = None
-        self.model_name = model_name
         self.size: int = 416
-        self.path: str = os.path.join(STATIC_PATH, f"models/{self.model_name}.onnx")
+        self.model_type = model_type
+
+        if self.model_type == "tiny": self.path: str = os.path.join(STATIC_PATH, f"models/yolo-v3-t.onnx")
         with open(os.path.join(STATIC_PATH, "classes.pkl"), "rb") as fp: self.classes = pickle.load(fp)
     
     def setup(self) -> None:
@@ -34,7 +35,6 @@ class Model(object):
         scale = min(self.size / w, self.size / h)
 
         nh, nw = math.ceil(h * scale), math.ceil(w * scale)
-        # nh, nw = int(h * scale), int(w * scale)
 
         hh: int = (self.size - nh) // 2
         ww: int = (self.size - nw) // 2
@@ -76,6 +76,59 @@ class Model(object):
             
             return self.classes[out_classes[0]], out_scores[0], (x1, y1, x2, y2)
         return None, None, None
+    
+#####################################################################################################
+
+class YoloV6(object):
+    def __init__(self, model_type: str="nano") -> None:
+        self.ort_session = None
+        self.size: int = 640
+        self.model_type = model_type
+
+        if model_type == "nano": self.path: str = os.path.join(STATIC_PATH, f"models/yolo-v6-n.onnx")
+        with open(os.path.join(STATIC_PATH, "classes.pkl"), "rb") as fp: self.classes = pickle.load(fp)
+    
+    def setup(self) -> None:
+        model = onnx.load(self.path)
+        onnx.checker.check_model(model)
+        self.ort_session = ort.InferenceSession(self.path)
+    
+    def preprocess(self, image: np.ndarray) -> np.ndarray:
+        image = image / 255
+        image = cv2.resize(src=image, dsize=(self.size, self.size), interpolation=cv2.INTER_AREA).transpose(2, 0, 1)
+        image = np.expand_dims(image, axis=0)
+        return image.astype("float32")
+    
+    def process_result(self, result: np.ndarray, im_w: int, im_h: int) -> tuple:
+        result = result[0]
+        probabilities = result[:, 5:]
+        label_index = np.argmax(np.max(probabilities, 0))
+        score = np.max(np.max(probabilities, 0))
+        box_index = np.argmax(probabilities[:, label_index] == np.max(probabilities[:, label_index]))
+        box = result[box_index, :4]
+        cx = int(box[0] * (im_w / 640))
+        cy = int(box[1] * (im_h / 640))
+
+        w = int(box[2] * (im_w / 640))
+        h = int(box[3] * (im_h / 640))
+
+        x1 = cx - (w // 2)
+        y1 = cy - (h // 2)
+
+        x2 = cx + (w // 2)
+        y2 = cy + (h // 2)
+
+        return self.classes[label_index], score, (x1, y1, x2, y2)
+
+    def infer(self, image: np.ndarray) -> tuple:
+
+        image_h, image_w, _ = image.shape
+
+        input = {self.ort_session.get_inputs()[0].name : self.preprocess(image)}
+        result = self.ort_session.run(None, input)
+        label, score, (x1, y1, x2, y2) = self.process_result(result[0], image_w, image_h)
+
+        return label, score, (x1, y1, x2, y2)
 
 #####################################################################################################
 
