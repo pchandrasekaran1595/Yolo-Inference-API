@@ -1,9 +1,8 @@
 import os
 import io
-import re
 import cv2
-import json
 import onnx
+import math
 import pickle
 import base64
 import numpy as np
@@ -13,15 +12,17 @@ from PIL import Image
 
 STATIC_PATH: str = "static"
 
+ort.set_default_logger_severity(3)
+
 #####################################################################################################
 
 class Model(object):
-    def __init__(self) -> None:
+    def __init__(self, model_name: str) -> None:
         self.ort_session = None
+        self.model_name = model_name
         self.size: int = 416
-        self.path: str = os.path.join(STATIC_PATH, 'model/model.onnx')
-        with open(os.path.join(STATIC_PATH, "model/classes.pkl"), "rb") as fp: self.classes = pickle.load(fp)
-        ort.set_default_logger_severity(3)
+        self.path: str = os.path.join(STATIC_PATH, f"models/{self.model_name}.onnx")
+        with open(os.path.join(STATIC_PATH, "classes.pkl"), "rb") as fp: self.classes = pickle.load(fp)
     
     def setup(self) -> None:
         model = onnx.load(self.path)
@@ -31,9 +32,10 @@ class Model(object):
     def preprocess(self, image: np.ndarray) -> np.ndarray:
         h, w, _ = image.shape
         scale = min(self.size / w, self.size / h)
-        # nh, nw = math.ceil(h * scale), math.ceil(w * scale)
 
-        nh, nw = int(h * scale), int(w * scale)
+        nh, nw = math.ceil(h * scale), math.ceil(w * scale)
+        # nh, nw = int(h * scale), int(w * scale)
+
         hh: int = (self.size - nh) // 2
         ww: int = (self.size - nw) // 2
 
