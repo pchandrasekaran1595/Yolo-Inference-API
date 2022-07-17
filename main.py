@@ -98,7 +98,7 @@ async def post_tiny_yolo_infer(number: int, image: Image):
     
 
 @app.get("/infer/v{number}/small")
-async def get_nano_yolo_infer(number: int):
+async def get_small_yolo_infer(number: int):
     return JSONResponse({
         "statusText" : f"Small Yolo V{number} Inference Endpoint; V6 is the only supported model type at present",
         "statusCode" : 200,
@@ -107,7 +107,7 @@ async def get_nano_yolo_infer(number: int):
 
 
 @app.post("/infer/v{number}/small")
-async def post_nano_yolo_infer(number: int, image: Image):
+async def post_small_yolo_infer(number: int, image: Image):
     _, image = decode_image(image.imageData)
 
     if number == 6:

@@ -85,7 +85,10 @@ class YoloV6(object):
         self.size: int = 640
         self.model_type = model_type
 
-        if model_type == "nano": self.path: str = os.path.join(STATIC_PATH, f"models/yolo-v6-n.onnx")
+        if model_type == "tiny": self.path: str  = os.path.join(STATIC_PATH, f"models/yolo-v6-t.onnx")
+        if model_type == "small": self.path: str = os.path.join(STATIC_PATH, f"models/yolo-v6-s.onnx")
+        if model_type == "nano": self.path: str  = os.path.join(STATIC_PATH, f"models/yolo-v6-n.onnx")
+        
         with open(os.path.join(STATIC_PATH, "classes.pkl"), "rb") as fp: self.classes = pickle.load(fp)
     
     def setup(self) -> None:
