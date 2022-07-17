@@ -71,9 +71,11 @@ async def post_tiny_yolo_infer(number: int, image: Image):
 
     if number == 3:
         model = YoloV3(model_type="tiny")
+    elif number == 6:
+        model = YoloV6(model_type="tiny")
     else:
         return JSONResponse({
-            "statusText" : "Tiny Yolo V3 is the only supported model type at present",
+            "statusText" : "Tiny Yolo V3 and V6 is the only supported model type at present",
             "statusCode" : 500,
         })
     
@@ -83,6 +85,45 @@ async def post_tiny_yolo_infer(number: int, image: Image):
     if label is not None:
         return JSONResponse({
             "statusText" : f"Tiny Yolo V{number} Inference Inference Complete",
+            "statusCode" : 200,
+            "label" : label,
+            "score" : str(score),
+            "box" : box,
+        })
+    else:
+        return JSONResponse({
+            "statusText" : "Inference Failed",
+            "statusCode" : 500,
+        })
+    
+
+@app.get("/infer/v{number}/small")
+async def get_nano_yolo_infer(number: int):
+    return JSONResponse({
+        "statusText" : f"Small Yolo V{number} Inference Endpoint; V6 is the only supported model type at present",
+        "statusCode" : 200,
+        "version" : VERSION,
+    })
+
+
+@app.post("/infer/v{number}/small")
+async def post_nano_yolo_infer(number: int, image: Image):
+    _, image = decode_image(image.imageData)
+
+    if number == 6:
+        model = YoloV6(model_type="small")
+    else:
+        return JSONResponse({
+            "statusText" : "Small Yolo V6 is the only supported model type at present",
+            "statusCode" : 500,
+        })
+    
+    model.setup()
+    label, score, box = model.infer(image=image)
+
+    if label is not None:
+        return JSONResponse({
+            "statusText" : f"Small Yolo V{number} Inference Inference Complete",
             "statusCode" : 200,
             "label" : label,
             "score" : str(score),
