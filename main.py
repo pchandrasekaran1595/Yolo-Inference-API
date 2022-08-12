@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import JSONResponse
@@ -33,7 +33,7 @@ app.add_middleware(
 async def root():
     return JSONResponse({
         "statusText" : "Root Endpoint of YOLOv3 Inference API",
-        "statusCode" : 200,
+        "statusCode" : status.HTTP_200_OK,
         "version" : VERSION,
     })
 
@@ -42,7 +42,7 @@ async def root():
 async def get_version():
     return JSONResponse({
         "statusText" : "Version Fetch Successful",
-        "statusCode" : 200,
+        "statusCode" : status.HTTP_200_OK,
         "version" : VERSION,
     })
 
@@ -51,7 +51,7 @@ async def get_version():
 async def get_version():
     return JSONResponse({
         "statusText" : "Inference Endpoint",
-        "statusCode" : 200,
+        "statusCode" : status.HTTP_200_OK,
         "version" : VERSION,
     })
 
@@ -60,7 +60,7 @@ async def get_version():
 async def get_tiny_yolo_infer(number: int):
     return JSONResponse({
         "statusText" : f"Tiny Yolo V{number} Inference Endpoint; V3 is the only supported model type at present",
-        "statusCode" : 200,
+        "statusCode" : status.HTTP_200_OK,
         "version" : VERSION,
     })
 
@@ -76,7 +76,7 @@ async def post_tiny_yolo_infer(number: int, image: Image):
     else:
         return JSONResponse({
             "statusText" : "Tiny Yolo V3 and V6 is the only supported model type at present",
-            "statusCode" : 500,
+            "statusCode" : status.HTTP_500_INTERNAL_SERVER_ERROR,
         })
     
     model.setup()
@@ -85,7 +85,7 @@ async def post_tiny_yolo_infer(number: int, image: Image):
     if label is not None:
         return JSONResponse({
             "statusText" : f"Tiny Yolo V{number} Inference Inference Complete",
-            "statusCode" : 200,
+            "statusCode" : status.HTTP_200_OK,
             "label" : label,
             "score" : str(score),
             "box" : box,
@@ -93,7 +93,7 @@ async def post_tiny_yolo_infer(number: int, image: Image):
     else:
         return JSONResponse({
             "statusText" : "Inference Failed",
-            "statusCode" : 500,
+            "statusCode" : status.HTTP_500_INTERNAL_SERVER_ERROR,
         })
     
 
@@ -101,7 +101,7 @@ async def post_tiny_yolo_infer(number: int, image: Image):
 async def get_small_yolo_infer(number: int):
     return JSONResponse({
         "statusText" : f"Small Yolo V{number} Inference Endpoint; V6 is the only supported model type at present",
-        "statusCode" : 200,
+        "statusCode" : status.HTTP_200_OK,
         "version" : VERSION,
     })
 
@@ -115,7 +115,7 @@ async def post_small_yolo_infer(number: int, image: Image):
     else:
         return JSONResponse({
             "statusText" : "Small Yolo V6 is the only supported model type at present",
-            "statusCode" : 500,
+            "statusCode" : status.HTTP_500_INTERNAL_SERVER_ERROR,
         })
     
     model.setup()
@@ -124,7 +124,7 @@ async def post_small_yolo_infer(number: int, image: Image):
     if label is not None:
         return JSONResponse({
             "statusText" : f"Small Yolo V{number} Inference Inference Complete",
-            "statusCode" : 200,
+            "statusCode" : status.HTTP_200_OK,
             "label" : label,
             "score" : str(score),
             "box" : box,
@@ -132,7 +132,7 @@ async def post_small_yolo_infer(number: int, image: Image):
     else:
         return JSONResponse({
             "statusText" : "Inference Failed",
-            "statusCode" : 500,
+            "statusCode" : status.HTTP_500_INTERNAL_SERVER_ERROR,
         })
 
 
@@ -140,7 +140,7 @@ async def post_small_yolo_infer(number: int, image: Image):
 async def get_nano_yolo_infer(number: int):
     return JSONResponse({
         "statusText" : f"Nano Yolo V{number} Inference Endpoint; V6 is the only supported model type at present",
-        "statusCode" : 200,
+        "statusCode" : status.HTTP_200_OK,
         "version" : VERSION,
     })
 
@@ -154,7 +154,7 @@ async def post_nano_yolo_infer(number: int, image: Image):
     else:
         return JSONResponse({
             "statusText" : "Nano Yolo V6 is the only supported model type at present",
-            "statusCode" : 500,
+            "statusCode" : status.HTTP_500_INTERNAL_SERVER_ERROR,
         })
     
     model.setup()
@@ -163,7 +163,7 @@ async def post_nano_yolo_infer(number: int, image: Image):
     if label is not None:
         return JSONResponse({
             "statusText" : f"Nano Yolo V{number} Inference Inference Complete",
-            "statusCode" : 200,
+            "statusCode" : status.HTTP_200_OK,
             "label" : label,
             "score" : str(score),
             "box" : box,
@@ -171,6 +171,6 @@ async def post_nano_yolo_infer(number: int, image: Image):
     else:
         return JSONResponse({
             "statusText" : "Inference Failed",
-            "statusCode" : 500,
+            "statusCode" : status.HTTP_500_INTERNAL_SERVER_ERROR,
         })
 
