@@ -135,6 +135,47 @@ class YoloV6(object):
 
 #####################################################################################################
 
+class YoloV7(object):
+    def __init__(self, model_type: str="nano") -> None:
+        self.ort_session = None
+        self.size: int = 640
+        self.model_type = model_type
+
+        if model_type == "tiny": self.path: str  = os.path.join(STATIC_PATH, f"models/yolo-v7-t.onnx")
+        
+        with open(os.path.join(STATIC_PATH, "classes.pkl"), "rb") as fp: self.classes = pickle.load(fp)
+    
+    def setup(self) -> None:
+        model = onnx.load(self.path)
+        onnx.checker.check_model(model)
+        self.ort_session = ort.InferenceSession(self.path)
+    
+    def preprocess(self, image: np.ndarray) -> np.ndarray:
+        image = image / 255
+        image = cv2.resize(src=image, dsize=(self.size, self.size), interpolation=cv2.INTER_AREA).transpose(2, 0, 1)
+        image = np.expand_dims(image, axis=0)
+        return image.astype("float32")
+    
+    def infer(self, image: np.ndarray) -> tuple:
+        im_h, im_w, _ = image.shape
+
+        input = {self.ort_session.get_inputs()[0].name : self.preprocess(image)}
+        result = self.ort_session.run(None, input)
+        result = result[0][0]
+
+        box = result[1:5]
+        label = int(result[-2])
+        score = result[-1]
+
+        x1 = int(box[0] * im_w / 640)
+        y1 = int(box[1] * im_h / 640)
+        x2 = int(box[2] * im_w / 640)
+        y2 = int(box[3] * im_h / 640)
+
+        return label, score, (x1, y1, x2, y2)
+
+#####################################################################################################
+
 def decode_image(imageData: str) -> np.ndarray:
     header, imageData = imageData.split(",")[0], imageData.split(",")[1]
     image = np.array(Image.open(io.BytesIO(base64.b64decode(imageData))))
