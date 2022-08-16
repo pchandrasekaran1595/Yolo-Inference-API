@@ -11,7 +11,7 @@ def test_root():
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {
-        "statusText" : "Root Endpoint of YOLOv3 Inference API",
+        "statusText" : "Root Endpoint of YOLO Inference API",
         "statusCode" : 200,
         "version" : VERSION,
     }
@@ -46,7 +46,7 @@ def test_get_tiny_yolo_infer(number):
     print(response.json())
     assert response.status_code == 200
     assert response.json() == {
-        "statusText" : f"Tiny Yolo V{number} Inference Endpoint; V3 is the only supported model type at present",
+        "statusText" : f"Tiny Yolo V{number} Inference Endpoint; Supported Models [V3, V6, V7]",
         "statusCode" : 200,
         "version" : VERSION,
     }
@@ -61,7 +61,7 @@ def test_get_small_yolo_infer(number):
     print(response.json())
     assert response.status_code == 200
     assert response.json() == {
-        "statusText" : f"Small Yolo V{number} Inference Endpoint; V6 is the only supported model type at present",
+        "statusText" : f"Small Yolo V{number} Inference Endpoint; Supported Models [V6]",
         "statusCode" : 200,
         "version" : VERSION,
     }
@@ -76,7 +76,7 @@ def test_get_nano_yolo_infer(number):
     print(response.json())
     assert response.status_code == 200
     assert response.json() == {
-        "statusText" : f"Nano Yolo V{number} Inference Endpoint; V6 is the only supported model type at present",
+        "statusText" : f"Nano Yolo V{number} Inference Endpoint; Supported Models [V6]",
         "statusCode" : 200,
         "version" : VERSION,
     }
