@@ -164,7 +164,7 @@ class YoloV7(object):
         result = result[0][0]
 
         box = result[1:5]
-        label = int(result[-2])
+        label_index = int(result[-2])
         score = result[-1]
 
         x1 = int(box[0] * im_w / 640)
@@ -172,7 +172,7 @@ class YoloV7(object):
         x2 = int(box[2] * im_w / 640)
         y2 = int(box[3] * im_h / 640)
 
-        return label, score, (x1, y1, x2, y2)
+        return self.classes[label_index], score, (x1, y1, x2, y2)
 
 #####################################################################################################
 
