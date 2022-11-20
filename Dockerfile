@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.8
 
 WORKDIR /code/
 
@@ -12,4 +12,4 @@ COPY ./main.py /code/
 
 COPY ./test_main.py /code/
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "6600", "--workers", "4"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5050", "--workers", "4"]
