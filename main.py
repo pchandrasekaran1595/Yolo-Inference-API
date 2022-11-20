@@ -6,16 +6,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from static.utils import YoloV3, YoloV6, YoloV7, decode_image, encode_image_to_base64
 
-VERSION = "1.0.0"
+VERSION: str = "1.0.0"
+STATIC_PATH: str = "static"
+
 
 class Image(BaseModel):
     imageData: str
 
 
-STATIC_PATH = "static"
 
 origins = [
-    "http://localhost:6601",
+    "http://localhost:5051",
 ]
 
 app = FastAPI()
