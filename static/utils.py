@@ -1,9 +1,9 @@
 import os
 import io
 import cv2
+import json
 import onnx
 import math
-import pickle
 import base64
 import numpy as np
 import onnxruntime as ort
@@ -21,9 +21,9 @@ class YoloV3(object):
         self.ort_session = None
         self.size: int = 416
         self.model_type = model_type
+        self.classes = json.load(open("static/labels.json", "r"))
 
         if self.model_type == "tiny": self.path: str = os.path.join(STATIC_PATH, f"models/yolo-v3-t.onnx")
-        with open(os.path.join(STATIC_PATH, "classes.pkl"), "rb") as fp: self.classes = pickle.load(fp)
     
     def setup(self) -> None:
         model = onnx.load(self.path)
@@ -74,7 +74,7 @@ class YoloV3(object):
             
             x1, y1, x2, y2 = int(out_boxes[0][1]), int(out_boxes[0][0]), int(out_boxes[0][3]), int(out_boxes[0][2])
             
-            return self.classes[out_classes[0]], out_scores[0], (x1, y1, x2, y2)
+            return self.classes[str(out_classes[0])], out_scores[0], (x1, y1, x2, y2)
         return None, None, None
     
 #####################################################################################################
@@ -88,8 +88,8 @@ class YoloV6(object):
         if model_type == "tiny": self.path: str  = os.path.join(STATIC_PATH, f"models/yolo-v6-t.onnx")
         if model_type == "small": self.path: str = os.path.join(STATIC_PATH, f"models/yolo-v6-s.onnx")
         if model_type == "nano": self.path: str  = os.path.join(STATIC_PATH, f"models/yolo-v6-n.onnx")
-        
-        with open(os.path.join(STATIC_PATH, "classes.pkl"), "rb") as fp: self.classes = pickle.load(fp)
+
+        self.classes = json.load(open("static/labels.json", "r"))
     
     def setup(self) -> None:
         model = onnx.load(self.path)
@@ -121,7 +121,7 @@ class YoloV6(object):
         x2 = cx + (w // 2)
         y2 = cy + (h // 2)
 
-        return self.classes[label_index], score, (x1, y1, x2, y2)
+        return self.classes[str(label_index)], score, (x1, y1, x2, y2)
 
     def infer(self, image: np.ndarray) -> tuple:
 
@@ -142,8 +142,8 @@ class YoloV7(object):
         self.model_type = model_type
 
         if model_type == "tiny": self.path: str  = os.path.join(STATIC_PATH, f"models/yolo-v7-t.onnx")
-        
-        with open(os.path.join(STATIC_PATH, "classes.pkl"), "rb") as fp: self.classes = pickle.load(fp)
+
+        self.classes = json.load(open("static/labels.json", "r"))
     
     def setup(self) -> None:
         model = onnx.load(self.path)
@@ -172,7 +172,7 @@ class YoloV7(object):
         x2 = int(box[2] * im_w / 640)
         y2 = int(box[3] * im_h / 640)
 
-        return self.classes[label_index], score, (x1, y1, x2, y2)
+        return self.classes[str(label_index)], score, (x1, y1, x2, y2)
 
 #####################################################################################################
 
