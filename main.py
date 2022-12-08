@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from static.utils import YoloV3, YoloV6, YoloV7, decode_image, encode_image_to_base64
+from static.utils import YoloV3, YoloV6, YoloV7, decode_image
 
 VERSION: str = "1.0.0"
 STATIC_PATH: str = "static"

@@ -1,15 +1,15 @@
 FROM python:3.8
 
-WORKDIR /code/
+WORKDIR /src/
 
-COPY ./requirements.txt /code/
+COPY ./requirements.txt /src/
 
 RUN pip install -r requirements.txt
 
-COPY ./static /code/static
+COPY ./static /src/static
 
-COPY ./main.py /code/
+COPY ./main.py /src/
 
-COPY ./test_main.py /code/
+COPY ./test_main.py /src/
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5050", "--workers", "4"]
