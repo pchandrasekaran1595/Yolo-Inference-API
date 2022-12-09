@@ -1,1 +1,1 @@
-start /MAX cmd /c "title START-API-SERVER && cd venv/Scripts && activate && cd .. && cd .. && cls && uvicorn main:app --port 4040 --reload && timeout /t 5 /nobreak"
+start /MAX cmd /c "title API-SERVER && cd venv/Scripts && activate && cd .. && cd .. && cls && uvicorn main:app --port 5050 --reload && timeout /t 5 /nobreak"

@@ -1,8 +1,7 @@
 __pycache__
-venv
-.vscode
 .pytest_cache
-*.bat
-misc
+.vscode
+.vagrant
+venv
 .github
 .git
