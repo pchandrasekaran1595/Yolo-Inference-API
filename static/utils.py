@@ -18,14 +18,12 @@ ort.set_default_logger_severity(3)
 
 class YoloV3(object):
     def __init__(self, model_type: str="tiny") -> None:
-        self.ort_session = None
         self.size: int = 416
         self.model_type = model_type
         self.classes = json.load(open("static/labels.json", "r"))
 
         if self.model_type == "tiny": self.path: str = os.path.join(STATIC_PATH, f"models/yolo-v3-t.onnx")
     
-    def setup(self) -> None:
         model = onnx.load(self.path)
         onnx.checker.check_model(model)
         self.ort_session = ort.InferenceSession(self.path)
@@ -81,7 +79,6 @@ class YoloV3(object):
 
 class YoloV6(object):
     def __init__(self, model_type: str="nano") -> None:
-        self.ort_session = None
         self.size: int = 640
         self.model_type = model_type
 
@@ -91,7 +88,6 @@ class YoloV6(object):
 
         self.classes = json.load(open("static/labels.json", "r"))
     
-    def setup(self) -> None:
         model = onnx.load(self.path)
         onnx.checker.check_model(model)
         self.ort_session = ort.InferenceSession(self.path)
@@ -137,15 +133,13 @@ class YoloV6(object):
 
 class YoloV7(object):
     def __init__(self, model_type: str="nano") -> None:
-        self.ort_session = None
         self.size: int = 640
         self.model_type = model_type
 
         if model_type == "tiny": self.path: str  = os.path.join(STATIC_PATH, f"models/yolo-v7-t.onnx")
 
         self.classes = json.load(open("static/labels.json", "r"))
-    
-    def setup(self) -> None:
+
         model = onnx.load(self.path)
         onnx.checker.check_model(model)
         self.ort_session = ort.InferenceSession(self.path)
@@ -171,6 +165,54 @@ class YoloV7(object):
         y1 = int(box[1] * im_h / 640)
         x2 = int(box[2] * im_w / 640)
         y2 = int(box[3] * im_h / 640)
+
+        return self.classes[str(label_index)], score, (x1, y1, x2, y2)
+
+#####################################################################################################
+
+class YoloV8(object):
+    def __init__(self, model_type: str="nano") -> None:
+        self.size: int = 640
+        self.model_type = model_type
+
+        if model_type == "small": self.path: str  = os.path.join(STATIC_PATH, f"models/yolo-v8-s.onnx")
+        if model_type == "nano": self.path: str  = os.path.join(STATIC_PATH, f"models/yolo-v8-n.onnx")
+
+        self.classes = json.load(open("static/labels.json", "r"))
+
+        model = onnx.load(self.path)
+        onnx.checker.check_model(model)
+        self.ort_session = ort.InferenceSession(self.path)
+    
+    def preprocess(self, image: np.ndarray) -> np.ndarray:
+        image = image / 255
+        image = cv2.resize(src=image, dsize=(self.size, self.size), interpolation=cv2.INTER_AREA).transpose(2, 0, 1)
+        image = np.expand_dims(image, axis=0)
+        return image.astype("float32")
+    
+    def infer(self, image: np.ndarray) -> tuple:
+        im_h, im_w, _ = image.shape
+
+        input = {self.ort_session.get_inputs()[0].name : self.preprocess(image)}
+        result = self.ort_session.run(None, input)
+        result = result[0][0]
+
+        boxes = result[0:4]
+        label_index = np.argmax(np.max(result[4:], axis=1))
+        score = np.max(np.max(result[4:], axis=1))
+
+        best_box_index = np.argmax(result[4:], axis=1)[label_index]
+        box = boxes[:, best_box_index].astype("int32")
+
+        cx = int(box[0] * im_w / 640)
+        cy = int(box[1] * im_h / 640)
+        w  = int(box[2] * im_w / 640)
+        h  = int(box[3] * im_h / 640)
+
+        x1 = cx - w // 2
+        y1 = cy - h // 2
+        x2 = cx + w // 2
+        y2 = cy + h // 2
 
         return self.classes[str(label_index)], score, (x1, y1, x2, y2)
 
