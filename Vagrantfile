@@ -6,6 +6,7 @@ Vagrant.configure("2") do |config|
     config.vm.provider "virtualbox" do |v|
         v.memory = 2048
         v.cpus = 2
+        v.name = "YOLO-API-SERVER"
     end
 
     config.vm.network "forwarded_port", guest: 5050, host: 5050
